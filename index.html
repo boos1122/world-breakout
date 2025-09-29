@@ -4,24 +4,50 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>打砖块游戏</title>
-  
-  <!-- 引入 Phaser -->
+
+  <!-- Phaser -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
 
-  <!-- 引入 World MiniKit SDK -->
+  <!-- World MiniKit SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@worldcoin/minikit-js@latest/dist/index.umd.js"></script>
 
   <style>
     html, body { margin:0; height:100%; background:#000; }
     h2 { margin:0; padding:6px 0; text-align:center; color:#fff; font-weight:700; }
     #game { width:100%; height:calc(100% - 42px); }
+    #toolbar{
+      position:fixed; top:8px; right:8px; z-index:1000;
+      display:flex; gap:8px;
+    }
+    #toolbar button{
+      padding:6px 10px; border:0; border-radius:6px; font-weight:600;
+      background:#1f6feb; color:#fff;
+    }
   </style>
 </head>
 <body>
   <h2>打砖块游戏</h2>
+
+  <!-- 顶部工具栏：登录 / 支付 -->
+  <div id="toolbar">
+    <button id="btnLogin">登录</button>
+    <button id="btnBuy">支付 1 WORLD</button>
+  </div>
+
   <div id="game"></div>
 
   <!-- 你的游戏主脚本 -->
   <script src="js/breakout.js"></script>
+
+  <!-- World 集成脚本（登录/支付/记分） -->
+  <script src="js/world.js"></script>
+
+  <!-- 绑定按钮事件（保持简单清晰） -->
+  <script>
+    const btnLogin = document.getElementById('btnLogin');
+    const btnBuy   = document.getElementById('btnBuy');
+    if (btnLogin) btnLogin.addEventListener('click', () => window.worldLogin && window.worldLogin());
+    if (btnBuy)   btnBuy.addEventListener('click',   () => window.worldBuy   && window.worldBuy());
+  </script>
 </body>
 </html>

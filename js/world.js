@@ -1,84 +1,40 @@
-/**
- * World MiniKit 对接（前端侧）
- * - 兼容模式：若 window.MiniKit 不存在，则用模拟器兜底，保证游戏不报错
- * - 暴露 window.worldAPI：login(), pay(), trackScore(score), getUser()
- */
-
 (function () {
-  const state = {
-    appId: window.WORLD_APP_ID || 'YOUR_WORLD_APP_ID',
-    user: null,
-    ready: false,
-    hasSDK: false,
+  const api = (window.worldAPI || window.world || window.MiniKit || {}).default || window.worldAPI || window.world;
+
+  function ok(x){ return typeof x !== 'undefined' && x !== null; }
+  function toast(msg){ try{ alert(msg); }catch(e){} }
+
+  // 登录
+  window.worldLogin = async function () {
+    if (!ok(api) || !api.login) return toast('MiniKit 未加载或不支持登录');
+    try {
+      await api.login();
+      toast('登录成功');
+    } catch (e) {
+      console.error(e);
+      toast('登录失败');
+    }
   };
 
-  function log(...args) { console.log('[world]', ...args); }
-
-  async function init() {
-    // 检测 SDK
-    state.hasSDK = typeof window.MiniKit !== 'undefined';
-    if (state.hasSDK) {
-      try {
-        window.__mini = new window.MiniKit({ appId: state.appId });
-        state.ready = true;
-        log('MiniKit ready');
-      } catch (e) {
-        log('MiniKit init failed', e);
-      }
-    } else {
-      state.ready = true;
-      log('MiniKit not found — fallback enabled');
-    }
-  }
-
-  async function login() {
-    if (!state.ready) await init();
+  // 支付 1 WORLD（可改为积分/道具等）
+  window.worldBuy = async function () {
+    if (!ok(api) || !api.pay) return toast('MiniKit 未加载或不支持支付');
     try {
-      if (state.hasSDK) {
-        state.user = await window.__mini.walletAuth();
-      } else {
-        // 模拟一个本地用户
-        const uid = localStorage.getItem('world_uid') || ('local_' + Math.random().toString(36).slice(2));
-        localStorage.setItem('world_uid', uid);
-        state.user = { id: uid, name: 'Guest' };
-      }
-      log('login ok', state.user);
-      return state.user;
+      await api.pay({
+        amount: '1',
+        currency: 'WORLD',
+        description: 'Breakout 内购'
+      });
+      toast('支付成功（或本地加积分）');
     } catch (e) {
-      log('login failed', e);
-      throw e;
+      console.error(e);
+      toast('支付失败');
     }
-  }
+  };
 
-  async function pay({ amount = '1', currency = 'WORLD', description = 'Breakout purchase' } = {}) {
-    if (!state.ready) await init();
-    if (!state.user) await login();
-    try {
-      if (state.hasSDK) {
-        const res = await window.__mini.payment({ amount, currency, description });
-        log('pay ok', res);
-        return res;
-      } else {
-        // 兜底：本地加积分
-        const coins = Number(localStorage.getItem('coins') || '0') + Number(amount);
-        localStorage.setItem('coins', String(coins));
-        log('pay (fallback) +', amount);
-        return { ok: true, fallback: true, amount };
-      }
-    } catch (e) {
-      log('pay failed', e);
-      throw e;
-    }
-  }
-
-  async function trackScore(score) {
-    // 这里通常是调用后端或 MiniKit 校验；先落本地
-    const best = Number(localStorage.getItem('bestScore') || '0');
-    if (score > best) localStorage.setItem('bestScore', String(score));
-    log('trackScore', score);
-  }
-
-  function getUser() { return state.user; }
-
-  window.worldAPI = { init, login, pay, trackScore, getUser };
+  // 记分：供游戏里调用（你之前已加了 hook；这里做兜底）
+  window.worldTrackScore = function (score) {
+    if (!ok(api) || !api.trackScore) return;
+    try { api.trackScore(Number(score)||0); } catch(e){ console.warn(e); }
+  };
 })();
