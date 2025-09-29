@@ -327,3 +327,59 @@ const config = {
 };
 
 new Phaser.Game(config);
+
+/* ===== World MiniKit hooks (safe append) =====
+ * - 自动尝试登录（不影响游戏流程，失败静默）
+ * - 在 GameOver.init(data) 阶段上报分数（若可用）
+ * - 不要求改你原有类名/场景，只要有 GameOver.init(data)
+ * ============================================ */
+(function () {
+  if (typeof window === 'undefined') return;
+
+  // 尝试静默登录：页面准备好就调一次
+  const tryLogin = () => {
+    try {
+      if (window.worldAPI && typeof worldAPI.login === 'function') {
+        worldAPI.login().catch(() => {});
+      }
+    } catch (e) {}
+  };
+
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    tryLogin();
+  } else {
+    window.addEventListener('DOMContentLoaded', tryLogin, { once: true });
+  }
+
+  // 给 GameOver 场景打补丁：init(data) 时上报分数
+  function attachScoreHook() {
+    try {
+      if (!window.GameOver || !GameOver.prototype) return;
+      if (GameOver.prototype.__worldHooked) return; // 只挂一次
+
+      const _init = GameOver.prototype.init;
+      GameOver.prototype.init = function (data) {
+        try { if (typeof _init === 'function') _init.call(this, data); } catch (e) {}
+
+        // data.score 或 this.finalScore 任取可用的
+        const score =
+          (data && typeof data.score === 'number' ? data.score : null) ??
+          (typeof this.finalScore === 'number' ? this.finalScore : 0);
+
+        try {
+          if (window.worldAPI && typeof worldAPI.trackScore === 'function') {
+            worldAPI.trackScore(score);
+          }
+        } catch (e) {}
+      };
+
+      GameOver.prototype.__worldHooked = true;
+    } catch (e) {}
+  }
+
+  // 立即尝试挂钩，并在短时间内轮询几次，确保类已加载
+  attachScoreHook();
+  const iv = setInterval(attachScoreHook, 500);
+  setTimeout(() => clearInterval(iv), 10000);
+})();
+ /* ===== end hooks ===== */
