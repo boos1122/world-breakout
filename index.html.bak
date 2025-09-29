@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Breakout</title>
+  <style>
+    html,body{height:100%;margin:0;background:#000;color:#fff;font-family:sans-serif,Arial}
+    .tip{position:fixed;left:0;right:0;bottom:0;font-size:12px;opacity:.5;text-align:center;padding:6px}
+  </style>
+</head>
+<body>
+  <!-- 用 CDN 引入 Phaser 引擎 -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+  <script src="./js/breakout.js"></script>
+  <div class="tip">PC: ← → 控制；手机: 左右滑动控制挡板</div>
+</body>
+</html>
