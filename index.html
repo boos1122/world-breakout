@@ -5,76 +5,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>打砖块游戏</title>
 
-  <!-- 引入 Phaser -->
+  <!-- Phaser -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
-
-  <!-- 引入 World MiniKit SDK -->
+  <!-- World MiniKit SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@worldcoin/minikit-js@latest/dist/index.umd.js"></script>
 
   <style>
     html, body { margin:0; height:100%; background:#000; }
     h2 { margin:0; padding:6px 0; text-align:center; color:#fff; font-weight:700; }
-    #game { width:100%; height:calc(100% - 90px); }
-    #controls { text-align:center; margin:10px; }
-    #controls button {
-      margin: 5px;
-      padding: 8px 16px;
-      font-size: 16px;
-      border:none;
-      border-radius: 6px;
-      cursor:pointer;
+    #game { width:100%; height:calc(100% - 42px); }
+
+    /* 顶部右侧的操作栏 */
+    .toolbar {
+      position: fixed; top: 6px; right: 8px; z-index: 9999;
+      display: flex; gap: 8px;
     }
-    #btnLogin { background:#3b82f6; color:#fff; }
-    #btnBuy { background:#22c55e; color:#fff; }
+    .toolbar button{
+      padding: 6px 10px; border: 0; border-radius: 6px;
+      background:#1f6feb; color:#fff; font-size:14px;
+    }
+    .toolbar button:disabled{ opacity:.5; }
+    .tip {
+      position: fixed; top: 48px; right: 8px; z-index: 9998;
+      color:#fff; font-size:12px; opacity:.8;
+    }
   </style>
 </head>
 <body>
   <h2>打砖块游戏</h2>
 
-  <!-- 控制按钮 -->
-  <div id="controls">
+  <!-- 顶部操作按钮 -->
+  <div class="toolbar">
     <button id="btnLogin">登录</button>
     <button id="btnBuy">支付 1 WORLD</button>
   </div>
+  <div class="tip" id="envTip"></div>
 
+  <!-- 游戏容器 -->
   <div id="game"></div>
 
-  <!-- 游戏主脚本 -->
-  <script src="js/breakout.js"></script>
-
-  <!-- World MiniKit 初始化与按钮逻辑 -->
   <script>
-    const client = new window.worldcoin.WorldApp({
-      app_id: "app_a6c354e707e8ac87f80c9d9af1a53053",
-    });
+    (function () {
+      const btnLogin = document.getElementById('btnLogin');
+      const btnBuy   = document.getElementById('btnBuy');
+      const envTip   = document.getElementById('envTip');
 
-    const btnLogin = document.getElementById("btnLogin");
-    const btnBuy = document.getElementById("btnBuy");
+      let client = null;
 
-    // 登录
-    btnLogin.addEventListener("click", async () => {
-      try {
-        await client.login();
-        btnLogin.textContent = "已登录";
-        alert("登录成功！");
-      } catch (e) {
-        alert("登录失败: " + e.message);
-      }
-    });
-
-    // 支付
-    btnBuy.addEventListener("click", async () => {
-      try {
-        await client.pay({
-          amount: "1",
-          currency: "WORLD",
-          description: "Breakout 购买",
+      // 仅在 World App 内部才有 MiniKit；普通浏览器会提示
+      if (!window.WorldApp || !window.WorldApp.Client) {
+        envTip.textContent = '未检测到 MiniKit：请在 World App 内打开本页面再试';
+        btnLogin.disabled = true;
+        btnBuy.disabled   = true;
+      } else {
+        // 初始化 MiniKit Client —— 用你的 app_id
+        client = new window.WorldApp.Client({
+          app_id: "app_a6c354e707e8ac87f80c9d9af1a53053"
         });
-        alert("支付成功！");
-      } catch (e) {
-        alert("支付失败: " + e.message);
+
+        btnLogin.addEventListener('click', async () => {
+          try {
+            await client.login();
+            btnLogin.textContent = '已登录';
+            alert('登录成功！');
+          } catch (e) {
+            alert('登录失败：' + (e && e.message ? e.message : e));
+          }
+        });
+
+        btnBuy.addEventListener('click', async () => {
+          try {
+            await client.pay({
+              amount: "1",
+              currency: "WORLD",
+              description: "Breakout 购买"
+            });
+            alert('支付成功！');
+          } catch (e) {
+            alert('支付失败：' + (e && e.message ? e.message : e));
+          }
+        });
       }
-    });
+    })();
   </script>
+
+  <!-- 你的游戏主脚本 -->
+  <script src="js/breakout.js"></script>
 </body>
 </html>
