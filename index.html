@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Breakout Game</title>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
-</head>
-<body>
-  <h2 style="text-align:center;color:white;background:black;">Breakout Game</h2>
-  <script src="breakout.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+    <title>Breakout Game</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+    <style>
+      html,body{margin:0;height:100%;background:#000;}
+      h2{margin:0;padding:6px 0;text-align:center;color:#fff;background:#000;}
+    </style>
+  </head>
+  <body>
+    <h2>Breakout Game</h2>
+    <!-- 关键：正确的相对路径 -->
+    <script src="js/breakout.js"></script>
+  </body>
 </html>
