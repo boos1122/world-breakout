@@ -1,19 +1,77 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <title>打砖块游戏</title>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
-    <style>
-      html, body { margin:0; height:100%; background:#000; }
-      h2 { margin:0; padding:6px 0; text-align:center; color:#fff; background:#000; font-weight:700; }
-      #game { width:100%; height:calc(100% - 42px); }
-    </style>
-  </head>
-  <body>
-    <h2>打砖块游戏</h2>
-    <div id="game"></div>
-    <script src="js/breakout.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>打砖块游戏</title>
+
+  <!-- Phaser -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+
+  <!-- World MiniKit（占位，拿到官方地址后替换 MINIKIT_SDK_URL；现在没链接也不报错） -->
+  <script>
+    (function(){
+      var s = document.createElement('script');
+      s.src = (window.MINIKIT_SDK_URL || ''); // 留空 = 不加载，走 fallback
+      if (s.src) document.head.appendChild(s);
+    })();
+    // 可选：把 AppID 暴露给 world.js
+    window.WORLD_APP_ID = 'YOUR_WORLD_APP_ID';
+  </script>
+
+  <!-- 我们的对接封装 -->
+  <script src="js/world.js"></script>
+
+  <style>
+    html, body { margin:0; height:100%; background:#000; }
+    h2 { margin:0; padding:6px 0; text-align:center; color:#fff; font-weight:700; }
+    #game { width:100%; height:calc(100% - 42px); }
+    .hud {
+      position: fixed; top: 8px; right: 8px; z-index: 9; display:flex; gap:8px;
+    }
+    .hud button {
+      background: #0ea5e9; color:#fff; border:none; border-radius:8px; padding:8px 12px;
+      font-size:14px; font-weight:600;
+    }
+  </style>
+</head>
+<body>
+  <h2>打砖块游戏</h2>
+
+  <div class="hud">
+    <button id="btnLogin">登录</button>
+    <button id="btnBuy">购买1 WORLD</button>
+  </div>
+
+  <div id="game"></div>
+
+  <script>
+    // 顶部按钮绑定
+    (function () {
+      const btnLogin = document.getElementById('btnLogin');
+      const btnBuy = document.getElementById('btnBuy');
+
+      btnLogin.addEventListener('click', async () => {
+        try {
+          await worldAPI.login();
+          btnLogin.textContent = '已登录';
+        } catch (e) {
+          alert('登录失败');
+        }
+      });
+
+      btnBuy.addEventListener('click', async () => {
+        try {
+          await worldAPI.pay({ amount: '1', currency: 'WORLD', description: 'Breakout 购买' });
+          alert('支付成功（或本地加积分）');
+        } catch (e) {
+          alert('支付失败');
+        }
+      });
+    })();
+  </script>
+
+  <!-- 你的游戏主脚本 -->
+  <script src="js/breakout.js"></script>
+</body>
 </html>
