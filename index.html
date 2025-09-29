@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
-    <title>Breakout Game</title>
-    <!-- 使用本地 Phaser，避免 CDN 访问问题 -->
-    <script src="js/phaser.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>打砖块游戏</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
     <style>
-      html,body{margin:0;height:100%;background:#000;}
-      h2{margin:0;padding:6px 0;text-align:center;color:#fff;background:#000;}
+      html, body { margin:0; height:100%; background:#000; }
+      h2 { margin:0; padding:6px 0; text-align:center; color:#fff; background:#000; font-weight:700; }
+      #game { width:100%; height:calc(100% - 42px); }
     </style>
   </head>
   <body>
-    <h2>Breakout Game</h2>
-    <!-- 正确的脚本路径 -->
+    <h2>打砖块游戏</h2>
+    <div id="game"></div>
     <script src="js/breakout.js"></script>
   </body>
 </html>
