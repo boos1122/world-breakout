@@ -10,7 +10,7 @@ class Breakout extends Phaser.Scene {
   }
 
   create() {
-    // 状态变量
+
     this.score = 0;
     this.lives = 3;
     this.level = 1;
@@ -18,28 +18,28 @@ class Breakout extends Phaser.Scene {
     this.scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '20px', fill: '#fff' });
     this.livesText = this.add.text(650, 16, 'Lives: 3', { fontSize: '20px', fill: '#fff' });
 
-    // 挡板
+
     this.paddle = this.physics.add.image(400, 550, 'paddle').setImmovable();
     this.paddle.body.allowGravity = false;
     this.paddle.setCollideWorldBounds(true);
 
-    // 球
+
     this.ball = this.physics.add.image(400, 530, 'ball');
     this.ball.setCollideWorldBounds(true);
     this.ball.setBounce(1);
     this.ball.setData('onPaddle', true);
 
-    // 砖块
+
     this.createBricks();
 
-    // 碰撞检测
+
     this.physics.add.collider(this.ball, this.paddle, this.hitPaddle, null, this);
     this.physics.add.collider(this.ball, this.bricks, this.hitBrick, null, this);
 
-    // 输入
+
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    // 最小水平速度
+
     const MIN_X = 120;
     this.physics.world.on('collide', () => {
       if (!this.ball.body) return;
@@ -49,7 +49,7 @@ class Breakout extends Phaser.Scene {
   }
 
   update() {
-    // 移动挡板
+
     if (this.cursors.left.isDown) {
       this.paddle.setVelocityX(-400);
     } else if (this.cursors.right.isDown) {
@@ -58,7 +58,7 @@ class Breakout extends Phaser.Scene {
       this.paddle.setVelocityX(0);
     }
 
-    // 球随挡板移动
+
     if (this.ball.getData('onPaddle')) {
       this.ball.x = this.paddle.x;
       if (this.cursors.space.isDown) {
@@ -67,7 +67,7 @@ class Breakout extends Phaser.Scene {
       }
     }
 
-    // 掉球检测
+
     if (this.ball.y > 600) {
       this.lives--;
       this.livesText.setText('Lives: ' + this.lives);
