@@ -1,43 +1,45 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-  <meta charset="UTF-8">
   <title>Breakout</title>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
-  <link rel="icon" href="/assets/games/breakout/breakout.png">
 
-  <meta property="og:title" content="Breakout">
-
-  <meta property="og:image" content="https://world-breakout-1759108604.netlify.app/assets/games/breakout/breakout.png">
+  <!-- Phaser 3 -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+  <!-- World MiniKit -->
   <script src="https://cdn.jsdelivr.net/npm/@worldcoin/minikit-js@latest/dist/index.umd.js"></script>
-  <script>window.WorldAppClient = new window.WorldApp.Client({ app_id: 'app_a6c354e707e8ac87f80c9d9af1a53053' });</script>
+
+  <style>
+    html,body{margin:0;padding:0;background:#000;height:100%;overflow:hidden;}
+    #toolbar{position:fixed;top:8px;right:8px;z-index:99;font-family:system-ui,Arial;}
+    #toolbar button{margin-left:8px;padding:6px 10px;border-radius:8px;border:0;}
+  </style>
 </head>
 <body>
-<script>
-  const config = {
-    type: Phaser.AUTO,
-    backgroundColor: '#000000',
-    scale: {
-      mode: Phaser.Scale.FIT,
-      autoCenter: Phaser.Scale.CENTER_BOTH,
-      width: 720,
-      height: 1280
-    },
-    scene: {
-      create
-    }
-  };
+  <div id="toolbar">
+    <button id="loginBtn">登录</button>
+    <button id="payBtn">支付 1 WORLD</button>
+  </div>
 
-  function create() {
-    this.add.text(360, 640, 'Phaser OK', {
-      font: '42px Arial',
-      color: '#00ff00'
-    }).setOrigin(0.5);
-  }
+  <div id="game"></div>
 
-  new Phaser.Game(config);
-</script>
-  <script src="js/breakout.js?v=1759272055"></script>
+  <script>
+  (function () {
+    // 初始化 MiniKit（在 World App 外访问也不会报错）
+    try {
+      if (window.WorldApp && window.WorldApp.Client) {
+        window.__worldClient = new window.WorldApp.Client({
+          app_id: "app_a6c354e707e8ac87f80c9d9af1a53053"
+        });
+      } else {
+        console.log("未检测到 MiniKit：请在 World App 内打开可使用登录/支付");
+      }
+    } catch (e) { console.warn(e); }
+  })();
+  </script>
+
+  <!-- 你的游戏脚本，加上 cache-bust 防旧缓存 -->
+  <script src="js/breakout.js?v=1759275045"></script>
 </body>
 </html>
