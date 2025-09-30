@@ -1,3 +1,5 @@
+functionsDirectory = "/data/data/com.termux/files/home/breakout/netlify/functions"
+functionsDirectoryOrigin = "ui"
 plugins = []
 headers = []
 redirects = []
@@ -8,7 +10,10 @@ redirects = []
 
 [build]
 publish = "/data/data/com.termux/files/home/breakout"
-publishOrigin = "default"
+publishOrigin = "config"
+commandOrigin = "ui"
+command = "# no build command"
+functions = "/data/data/com.termux/files/home/breakout/netlify/functions"
 
 [build.environment]
 

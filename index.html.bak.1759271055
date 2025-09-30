@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <meta charset="UTF-8">
+  <title>Breakout</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+  <link rel="icon" href="/assets/games/breakout/breakout.png">
+
+  <meta property="og:title" content="Breakout">
+
+  <meta property="og:image" content="https://world-breakout-1759108604.netlify.app/assets/games/breakout/breakout.png">
+  <script src="https://cdn.jsdelivr.net/npm/@worldcoin/minikit-js@latest/dist/index.umd.js"></script>
+  <script>window.WorldAppClient = new window.WorldApp.Client({ app_id: 'app_a6c354e707e8ac87f80c9d9af1a53053' });</script>
+</head>
+<body>
+<script>
+  const config = {
+    type: Phaser.AUTO,
+    backgroundColor: '#000000',
+    scale: {
+      mode: Phaser.Scale.FIT,
+      autoCenter: Phaser.Scale.CENTER_BOTH,
+      width: 720,
+      height: 1280
+    },
+    scene: {
+      create
+    }
+  };
+
+  function create() {
+    this.add.text(360, 640, 'Phaser OK', {
+      font: '42px Arial',
+      color: '#00ff00'
+    }).setOrigin(0.5);
+  }
+
+  new Phaser.Game(config);
+</script>
+  <script src="js/breakout.js?v=1759270907"></script>
+</body>
+</html>
