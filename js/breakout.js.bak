@@ -1,138 +1,147 @@
-class Breakout extends Phaser.Scene
-{
-    constructor ()
-    {
-        super({ key: 'breakout' });
+class Breakout extends Phaser.Scene {
+  constructor() {
+    super({ key: 'Breakout' });
+  }
 
-        this.bricks;
-        this.paddle;
-        this.ball;
+  preload() {
+    this.load.image('paddle', 'assets/paddle.png');
+    this.load.image('ball', 'assets/ball.png');
+    this.load.image('brick', 'assets/brick.png');
+  }
+
+  create() {
+    // 状态变量
+    this.score = 0;
+    this.lives = 3;
+    this.level = 1;
+
+    this.scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '20px', fill: '#fff' });
+    this.livesText = this.add.text(650, 16, 'Lives: 3', { fontSize: '20px', fill: '#fff' });
+
+    // 挡板
+    this.paddle = this.physics.add.image(400, 550, 'paddle').setImmovable();
+    this.paddle.body.allowGravity = false;
+    this.paddle.setCollideWorldBounds(true);
+
+    // 球
+    this.ball = this.physics.add.image(400, 530, 'ball');
+    this.ball.setCollideWorldBounds(true);
+    this.ball.setBounce(1);
+    this.ball.setData('onPaddle', true);
+
+    // 砖块
+    this.createBricks();
+
+    // 碰撞检测
+    this.physics.add.collider(this.ball, this.paddle, this.hitPaddle, null, this);
+    this.physics.add.collider(this.ball, this.bricks, this.hitBrick, null, this);
+
+    // 输入
+    this.cursors = this.input.keyboard.createCursorKeys();
+
+    // 最小水平速度
+    const MIN_X = 120;
+    this.physics.world.on('collide', () => {
+      if (!this.ball.body) return;
+      const vx = Math.sign(this.ball.body.velocity.x) * Math.max(Math.abs(this.ball.body.velocity.x), MIN_X);
+      this.ball.setVelocityX(vx);
+    });
+  }
+
+  update() {
+    // 移动挡板
+    if (this.cursors.left.isDown) {
+      this.paddle.setVelocityX(-400);
+    } else if (this.cursors.right.isDown) {
+      this.paddle.setVelocityX(400);
+    } else {
+      this.paddle.setVelocityX(0);
     }
 
-    preload ()
-    {
-        // this.load.setBaseURL('https://cdn.phaserfiles.com/v385');
-        this.load.atlas('assets', 'assets/games/breakout/breakout.png', 'assets/games/breakout/breakout.json');
+    // 球随挡板移动
+    if (this.ball.getData('onPaddle')) {
+      this.ball.x = this.paddle.x;
+      if (this.cursors.space.isDown) {
+        this.ball.setVelocity(-75, -300);
+        this.ball.setData('onPaddle', false);
+      }
     }
 
-    create ()
-    {
-        //  Enable world bounds, but disable the floor
-        this.physics.world.setBoundsCollision(true, true, true, false);
-
-        //  Create the bricks in a 10x6 grid
-        this.bricks = this.physics.add.staticGroup({
-            key: 'assets', frame: [ 'blue1', 'red1', 'green1', 'yellow1', 'silver1', 'purple1' ],
-            frameQuantity: 10,
-            gridAlign: { width: 10, height: 6, cellWidth: 64, cellHeight: 32, x: 112, y: 100 }
-        });
-
-        this.ball = this.physics.add.image(400, 500, 'assets', 'ball1').setCollideWorldBounds(true).setBounce(1);
-        this.ball.setData('onPaddle', true);
-
-        this.paddle = this.physics.add.image(400, 550, 'assets', 'paddle1').setImmovable();
-
-        //  Our colliders
-        this.physics.add.collider(this.ball, this.bricks, this.hitBrick, null, this);
-        this.physics.add.collider(this.ball, this.paddle, this.hitPaddle, null, this);
-
-        //  Input events
-        this.input.on('pointermove', function (pointer)
-        {
-
-            //  Keep the paddle within the game
-            this.paddle.x = Phaser.Math.Clamp(pointer.x, 52, 748);
-
-            if (this.ball.getData('onPaddle'))
-            {
-                this.ball.x = this.paddle.x;
-            }
-
-        }, this);
-
-        this.input.on('pointerup', function (pointer)
-        {
-
-            if (this.ball.getData('onPaddle'))
-            {
-                this.ball.setVelocity(-75, -300);
-                this.ball.setData('onPaddle', false);
-            }
-
-        }, this);
-    }
-
-    hitBrick (ball, brick)
-    {
-        brick.disableBody(true, true);
-
-        if (this.bricks.countActive() === 0)
-        {
-            this.resetLevel();
-        }
-    }
-
-    resetBall ()
-    {
-        this.ball.setVelocity(0);
-        this.ball.setPosition(this.paddle.x, 500);
-        this.ball.setData('onPaddle', true);
-    }
-
-    resetLevel ()
-    {
+    // 掉球检测
+    if (this.ball.y > 600) {
+      this.lives--;
+      this.livesText.setText('Lives: ' + this.lives);
+      if (this.lives <= 0) {
+        this.scene.start('GameOver', { score: this.score });
+      } else {
         this.resetBall();
-
-        this.bricks.children.each(brick =>
-        {
-
-            brick.enableBody(false, 0, 0, true, true);
-
-        });
+      }
     }
+  }
 
-    hitPaddle (ball, paddle)
-    {
-        let diff = 0;
-
-        if (ball.x < paddle.x)
-        {
-            //  Ball is on the left-hand side of the paddle
-            diff = paddle.x - ball.x;
-            ball.setVelocityX(-10 * diff);
-        }
-        else if (ball.x > paddle.x)
-        {
-            //  Ball is on the right-hand side of the paddle
-            diff = ball.x - paddle.x;
-            ball.setVelocityX(10 * diff);
-        }
-        else
-        {
-            //  Ball is perfectly in the middle
-            //  Add a little random X to stop it bouncing straight up!
-            ball.setVelocityX(2 + Math.random() * 8);
-        }
+  createBricks() {
+    this.bricks = this.physics.add.staticGroup();
+    for (let y = 0; y < 4 + this.level; y++) {
+      for (let x = 0; x < 10; x++) {
+        this.bricks.create(80 + x * 64, 100 + y * 32, 'brick').setOrigin(0, 0).refreshBody();
+      }
     }
+  }
 
-    update ()
-    {
-        if (this.ball.y > 600)
-        {
-            this.resetBall();
-        }
+  hitBrick(ball, brick) {
+    brick.disableBody(true, true);
+    this.score += 10;
+    this.scoreText.setText('Score: ' + this.score);
+
+    if (this.bricks.countActive() === 0) {
+      this.level++;
+      this.scene.restart({ level: this.level, score: this.score, lives: this.lives });
     }
+  }
+
+  hitPaddle(ball, paddle) {
+    let diff = 0;
+    if (ball.x < paddle.x) diff = ball.x - paddle.x;
+    else if (ball.x > paddle.x) diff = ball.x - paddle.x;
+    ball.setVelocityX(10 * diff);
+  }
+
+  resetBall() {
+    this.ball.setVelocity(0);
+    this.ball.setPosition(this.paddle.x, 530);
+    this.ball.setData('onPaddle', true);
+  }
+}
+
+class GameOver extends Phaser.Scene {
+  constructor() {
+    super({ key: 'GameOver' });
+  }
+
+  init(data) {
+    this.finalScore = data.score || 0;
+  }
+
+  create() {
+    this.add.text(400, 250, 'Game Over', { fontSize: '40px', fill: '#ff0000' }).setOrigin(0.5);
+    this.add.text(400, 320, 'Score: ' + this.finalScore, { fontSize: '30px', fill: '#fff' }).setOrigin(0.5);
+    this.add.text(400, 400, 'Press SPACE to Restart', { fontSize: '20px', fill: '#fff' }).setOrigin(0.5);
+
+    this.input.keyboard.once('keydown-SPACE', () => {
+      this.scene.start('Breakout');
+    });
+  }
 }
 
 const config = {
-    type: Phaser.WEBGL,
-    width: 800,
-    height: 600,
-    parent: 'phaser-example',
-    scene: [ Breakout ],
-    physics: {
-        default: 'arcade'
-    }
+  type: Phaser.AUTO,
+  width: 800,
+  height: 600,
+  backgroundColor: '#000000',
+  pixelArt: true,
+  scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+  physics: { default: 'arcade', arcade: { debug: false } },
+  scene: [Breakout, GameOver]
 };
 
 const game = new Phaser.Game(config);
