@@ -1,8 +1,10 @@
 # 或者 vim .gitignorenode_modules/
 .DS_Store
-# 3. 强制重新追踪 breakout.js Local Netlify folder
-git add -f js/breakout.js.netlify .vercel
 # 4. 提交
-git commit -m "fix: force add breakout.js"
 # 5. 推送
 git push
+
+
+# local & backups
+.vercel/
+*.bak*
