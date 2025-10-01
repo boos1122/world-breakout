@@ -8,3 +8,4 @@ git push
 # local & backups
 .vercel/
 *.bak*
+.vercel
